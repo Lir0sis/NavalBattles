@@ -8,9 +8,17 @@ namespace NavalBattles
 {
     class Ship
     {
-        public Ship(int bodyX, int bodyY, int size, bool rotation)
-        {
+        public int bodyX;
+        public int bodyY;
+        public int size;
+        public int rotation;
 
+        public Ship(int bodyX, int bodyY, int size, int rotation)
+        {
+            this.bodyX = bodyX;
+            this.bodyY = bodyY;
+            this.size = size;
+            this.rotation = rotation;
         }
     }
 }
