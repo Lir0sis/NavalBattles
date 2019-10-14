@@ -8,24 +8,41 @@ namespace NavalBattles
 {
     class Mesh
     {
-        public string[,] Vmesh;
-        public Ship[,] Gmesh;
-        public Mesh(int startX, int startY, int endX, int endY)
+        public string[,] gameBoard;
+
+        public Mesh()
         {
-            Vmesh = new string[endX + 1 - startX, endY + 1 - startY];
-            //Console.WriteLine($"{Vmesh.GetLength(0)} {Vmesh.GetLength(1)}");
-        }
-        public Mesh(int sizeX, int sizeY)
-        {
-            Gmesh = new Ship[sizeX, sizeY];
+            gameBoard = new string[10, 10];
+
+            for (int i = 0; i < 10; i++)
+                for (int j = 0; j < 10; j++)
+                    gameBoard[i, j] = "E";
+
         }
 
-        private string SetCursor(int x, int y)
+        public void SetCursor(int x, int y)
         { 
-            return "\u001b[" + x + ";" + y + "H";
+            Console.CursorLeft = x;
+            Console.CursorTop = y;
+        }
+        public void SetCursor() 
+        {
+            Console.CursorLeft = 0;
+            Console.CursorTop = 0;
         }
 
-        public void SetMesh()
+        public void DrawGameBoard(int x, int y) 
+        {
+            for (int i = 0; i < 10; i++)
+                for (int j = 0; j < 10; j++)
+                {
+                    SetCursor((i + x) * 2, (j + y));
+                    Console.Write(gameBoard[i, j]);
+                }
+                    
+        }
+
+       /* public void SetMesh22()
         {
             int lastX = Vmesh.GetLength(0) - 1, lastY = Vmesh.GetLength(1) - 1;
 
@@ -54,18 +71,7 @@ namespace NavalBattles
                 }
 
             }
-        }
+        }*/
 
-        public void DrawMesh()
-        {
-            for (int i = 0; i < Vmesh.GetLength(0); i++)
-            {
-                for (int j = 0; j < Vmesh.GetLength(1); j++)
-                {
-                    //Console.WriteLine($"{i} {j}");
-                    Console.Write(Vmesh[i, j]);
-                }
-            }
-        }
     }
 }

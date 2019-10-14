@@ -10,15 +10,11 @@ namespace NavalBattles
     {
         public int bodyX;
         public int bodyY;
-        public int size;
-        public int rotation;
 
-        public Ship(int bodyX, int bodyY, int size, int rotation)
+        public Ship(int bodyX, int bodyY)
         {
             this.bodyX = bodyX;
             this.bodyY = bodyY;
-            this.size = size;
-            this.rotation = rotation;
         }
     }
 }

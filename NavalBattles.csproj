@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interface.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="NavalBattles.cs" />
     <Compile Include="Ship.cs" />
     <Compile Include="Mesh.cs" />
