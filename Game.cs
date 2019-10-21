@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Diagnostics;
+
+namespace NavalBattles
+{
+    class Game
+    {
+
+        static void Main(string[] args)
+        {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.Title = "NavalBattles";
+            Console.SetWindowSize(60, 22);
+            Console.SetBufferSize(60, 22);
+            Console.WindowLeft = 0;
+            Console.WindowTop = 0;
+
+            User player1 = new User(true);
+            User player2 = new User(false);
+
+            player1.Interface.DrawInterface();
+            PlaceShips(player1.Interface.UsrMesh);
+            PlaceShips(player1.Interface.EnemyMesh);
+        }
+
+        static void PlaceShips(Mesh mesh) 
+        {
+            //bool isPlaced = false;
+            int posX = 0, posY = 0;
+                
+
+            while (true)
+            {
+                int preX = 0, preY = 0;
+
+                mesh.DrawBoardCell(posX, posY, ConsoleColor.Black, ConsoleColor.Yellow);
+                ConsoleKey Key = Console.ReadKey().Key;
+
+                PickCell(Key, ref posX, ref posY, ref preX, ref preY);
+                mesh.DrawBoardCell(preX, preY);
+
+                if (!Action(Key, posX, posY, mesh)) continue;
+                mesh.DrawBoardCell(posX, posY);
+                Mesh.SetCursor();
+                break;
+            }
+        }
+
+        public static void PickCell(ConsoleKey Key, ref int posX, ref int posY, ref int preX, ref int preY)
+        {
+            switch (Key)
+            {
+                case ConsoleKey.UpArrow:
+                    posY = (posY > 0 ? posY - 1 : 9);
+                    preX = posX;
+                    preY = (posY + 1 > 9 ? 0 : posY + 1);
+                    break;
+                case ConsoleKey.DownArrow:
+                    posY = (posY < 9 ? posY + 1 : 0);
+                    preX = posX;
+                    preY = (posY - 1 < 0 ? 9 : posY - 1);
+                    break;
+                case ConsoleKey.LeftArrow:
+                    posX = (posX > 0 ? posX - 1 : 9);
+                    preY = posY;
+                    preX = (posX + 1 > 9 ? 0 : posX + 1);
+                    break;
+                case ConsoleKey.RightArrow:
+                    posX = (posX < 9 ? posX + 1 : 0);
+                    preY = posY;
+                    preX = (posX - 1 < 0 ? 9 : posX - 1);
+                    break;
+            }
+        }
+
+        public static bool Action(ConsoleKey Key, int posX, int posY, Mesh mesh) 
+        {
+            switch (Key)
+            {
+                case ConsoleKey.F1:
+                    return true;
+                case ConsoleKey.Enter:
+                    mesh.gameBoard[posX, posY] = (mesh.gameBoard[posX, posY] != "S" ? "S" : "E");
+                    break;
+
+            }
+            return false;
+        }
+    }
+}

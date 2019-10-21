@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace NavalBattles
 {
-    class User
+    class User : Game
     {
         public bool IsFirst = false;
-        public Mesh mesh;
-
+        public Interface Interface;
         public User(bool IsFirst)
         {
             this.IsFirst = IsFirst;
-            mesh = new Mesh();
+            Interface = new Interface();
         }
     }
 }
