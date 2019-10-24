@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace NavalBattles
 {
-    class Ship
+    public class Ship
     {
-        public int bodyX;
-        public int bodyY;
+        public int ShipSize;
+        public int[,] Coords;
 
-        public Ship(int bodyX, int bodyY)
+        public Ship(int ShipSize, int[,] Coords)
         {
-            this.bodyX = bodyX;
-            this.bodyY = bodyY;
+            this.ShipSize = ShipSize;
+
+            this.Coords = Coords;
         }
     }
 }

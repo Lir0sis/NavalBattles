@@ -30,8 +30,8 @@ namespace NavalBattles
             DrawWindowBase(enemyX, enemyY/2 , enemyX + 22, enemyY/2 + 11);
             DrawWindowBase(4, 15, 54, 20);
 
-            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2, true);
-            EnemyMesh.DrawGameBoard(enemyX + 2, enemyY + 2);
+            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2);
+            EnemyMesh.DrawGameBoard(enemyX + 2, enemyY + 2, true);
 
             Mesh.SetCursor();
         }
@@ -57,7 +57,12 @@ namespace NavalBattles
             Mesh.SetCursor();
         }
 
+        public void DrawSetupStatus(User player)
+        {
+            int[,] Borders = { { 5, 14 }, { 53, 19 } };
 
+
+        }
     }
 
     public class Mesh
@@ -82,30 +87,31 @@ namespace NavalBattles
             Console.CursorTop = y;
         }
 
-        public void DrawGameBoard(int offsetX, int offsetY, bool isEnemy = false) 
+        public void DrawGameBoard(int offsetX, int offsetY, bool isEnemy = false, bool drawSymbols = true) 
         {
             for (int i = 0; i < 10; i++)
                 for (int j = 0; j < 10; j++)
                 {
                     string toWrite = "";
                     SetCursor(i + offsetX/2, j + offsetY/2, 2);
-
-                    switch (gameBoard[i, j]) 
-                    {
-                        case "E":
-                            toWrite = "-";
-                            break;
-                        case "D":
-                            toWrite = "X";
-                            break;
-                        case "S":
-                            toWrite = (isEnemy ? "~" : "\u25A0");
-                            break;
-                        case "M":
-                            toWrite = ".";
-                            break;
-                    }
-
+                    if (drawSymbols)
+                        switch (gameBoard[i, j].ToCharArray()[0].ToString())
+                        {
+                            case "E":
+                                toWrite = "~ ";
+                                break;
+                            case "D":
+                                toWrite = "X ";
+                                break;
+                            case "S":
+                                toWrite = (isEnemy ? "~ " : "\u25A0 ");
+                                break;
+                            case "M":
+                                toWrite = ". ";
+                                break;
+                        }
+                    else
+                        toWrite = gameBoard[i, j];
                     Console.Write(toWrite);
                 }
         }
@@ -114,21 +120,22 @@ namespace NavalBattles
         {
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
             string toWrite = "";
-            switch (gameBoard[cellX, cellY])
+            switch (gameBoard[cellX, cellY].ToCharArray()[0].ToString())
             {
                 case "E":
-                    toWrite = "-";
+                    toWrite = "~ ";
                     break;
                 case "D":
-                    toWrite = "X";
+                    toWrite = "X ";
                     break;
                 case "S":
-                    toWrite = "\u25A0";
+                    toWrite = "\u25A0 ";
                     break;
                 case "M":
-                    toWrite = ".";
+                    toWrite = ". ";
                     break;
             }
+            //toWrite = (gameBoard[cellX, cellY]);
             Console.Write(toWrite);
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
         }

@@ -24,16 +24,32 @@ namespace NavalBattles
             User player2 = new User(false);
 
             player1.Interface.DrawInterface();
-            PlaceShips(player1.Interface.UsrMesh);
-            PlaceShips(player1.Interface.EnemyMesh);
+
+            while (true)
+            {
+                player1.Interface.UsrMesh.DrawGameBoard(6, 6);
+                try
+                {
+                    PlaceShips(player1);
+                }
+                catch (ShipSetupFail)
+                {
+                    //Console.WriteLine("Bad ship placement");
+                    NullifyShips(player1);
+                    continue;
+                }
+
+                break;
+            }
+            Mesh.SetCursor();
+            //player1.Interface.DrawInterface();
+            //PlaceShips(player1.Interface.EnemyMesh);
         }
 
-        static void PlaceShips(Mesh mesh) 
+        public static void PlaceShips(User usr) 
         {
-            //bool isPlaced = false;
+            var mesh = usr.Interface.UsrMesh;
             int posX = 0, posY = 0;
-                
-
             while (true)
             {
                 int preX = 0, preY = 0;
@@ -45,6 +61,8 @@ namespace NavalBattles
                 mesh.DrawBoardCell(preX, preY);
 
                 if (!Action(Key, posX, posY, mesh)) continue;
+                usr.CheckForBoardShips();
+
                 mesh.DrawBoardCell(posX, posY);
                 Mesh.SetCursor();
                 break;
@@ -90,6 +108,43 @@ namespace NavalBattles
 
             }
             return false;
+        }
+        
+        public static void NullifyShips(User usr)
+        {
+            var mesh = usr.Interface.UsrMesh;
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    mesh.gameBoard[y, x] = (mesh.gameBoard[y, x].ToCharArray()[0].ToString() == "S" ? "S" : "E");
+                }
+            }
+
+            usr.Size1Ship = new Ship[usr.Size1Ship.Length];
+            usr.Size2Ship = new Ship[usr.Size2Ship.Length];
+            usr.Size3Ship = new Ship[usr.Size3Ship.Length];
+            usr.Size4Ship = new Ship[usr.Size4Ship.Length];
+        }
+    }
+    public class ShipSetupFail : Exception
+    {
+        private int size;
+        public ShipSetupFail()
+        {
+        }
+        public ShipSetupFail(string message, int size) : base(message)
+        {
+            this.size = size;
+        }
+        public ShipSetupFail(string message, Exception inner)
+            : base(message, inner)
+        {
+
+        }
+        public int GetSize()
+        {
+            return size;
         }
     }
 }
