@@ -23,27 +23,39 @@ namespace NavalBattles
             User player1 = new User(true);
             User player2 = new User(false);
 
-            player1.Interface.DrawInterface();
+            Setup(player1);
+            //Setup(player2);
+            
+            Mesh.SetCursor();
+            //player1.Interface.DrawInterface();
+            //PlaceShips(player1.Interface.EnemyMesh);
+        }
+
+        public static void Setup(User player)
+        {
+            player.Interface.DrawInterface();
 
             while (true)
             {
-                player1.Interface.UsrMesh.DrawGameBoard(6, 6);
+                player.Interface.UsrMesh.DrawGameBoard(6, 6);
                 try
                 {
-                    PlaceShips(player1);
+                    PlaceShips(player);
+                    player.CheckForRules();
                 }
                 catch (ShipSetupFail)
                 {
-                    //Console.WriteLine("Bad ship placement");
-                    NullifyShips(player1);
+                    NullifyShips(player);
+                    continue;
+                }
+                catch (BrokenRules)
+                {
+                    NullifyShips(player);
                     continue;
                 }
 
                 break;
             }
-            Mesh.SetCursor();
-            //player1.Interface.DrawInterface();
-            //PlaceShips(player1.Interface.EnemyMesh);
         }
 
         public static void PlaceShips(User usr) 
@@ -54,7 +66,7 @@ namespace NavalBattles
             {
                 int preX = 0, preY = 0;
 
-                mesh.DrawBoardCell(posX, posY, ConsoleColor.Black, ConsoleColor.Yellow);
+                mesh.DrawBoardCell(posX, posY, ConsoleColor.Black, ConsoleColor.Cyan);
                 ConsoleKey Key = Console.ReadKey().Key;
 
                 PickCell(Key, ref posX, ref posY, ref preX, ref preY);
@@ -145,6 +157,20 @@ namespace NavalBattles
         public int GetSize()
         {
             return size;
+        }
+    }
+    public class BrokenRules : Exception
+    {
+        public BrokenRules()
+        {
+        }
+        public BrokenRules(string message) : base(message)
+        {
+        }
+        public BrokenRules(string message, Exception inner)
+            : base(message, inner)
+        {
+
         }
     }
 }

@@ -12,6 +12,7 @@ namespace NavalBattles
 
         public Interface()
         {
+            
             UsrMesh = new Mesh();
             EnemyMesh = new Mesh();
         }
@@ -98,16 +99,16 @@ namespace NavalBattles
                         switch (gameBoard[i, j].ToCharArray()[0].ToString())
                         {
                             case "E":
-                                toWrite = "~ ";
+                                toWrite = "~";
                                 break;
                             case "D":
-                                toWrite = "X ";
+                                toWrite = "X";
                                 break;
                             case "S":
-                                toWrite = (isEnemy ? "~ " : "\u25A0 ");
+                                toWrite = (isEnemy ? "~" : "\u25A0");
                                 break;
                             case "M":
-                                toWrite = ". ";
+                                toWrite = ".";
                                 break;
                         }
                     else
@@ -123,16 +124,16 @@ namespace NavalBattles
             switch (gameBoard[cellX, cellY].ToCharArray()[0].ToString())
             {
                 case "E":
-                    toWrite = "~ ";
+                    toWrite = "~";
                     break;
                 case "D":
-                    toWrite = "X ";
+                    toWrite = "X";
                     break;
                 case "S":
-                    toWrite = "\u25A0 ";
+                    toWrite = "\u25A0";
                     break;
                 case "M":
-                    toWrite = ". ";
+                    toWrite = ".";
                     break;
             }
             //toWrite = (gameBoard[cellX, cellY]);
