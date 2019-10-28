@@ -14,10 +14,10 @@ namespace NavalBattles
         {
             
             UsrMesh = new Mesh();
-            EnemyMesh = new Mesh();
+            EnemyMesh = new Mesh(true);
         }
 
-        public void DrawInterface(int usrX = 4, int usrY = 4, int enemyX = 32, int enemyY = 4)
+        public void DrawInterface(int usrX = 4, int usrY = 4, int enemyX = 34, int enemyY = 4)
         {
             EnemyMesh.x = enemyX + 2;
             EnemyMesh.y = enemyY + 2;
@@ -26,6 +26,9 @@ namespace NavalBattles
             
             usrX += (usrX % 2 != 0 ? 1 : 0);
             usrY += (usrY % 2 != 0 ? 1 : 0);
+
+            enemyX += (enemyX % 2 != 0 ? 1 : 0);
+            enemyY += (enemyY % 2 != 0 ? 1 : 0);
 
             DrawWindowBase(usrX, usrY/2, usrX + 22, usrY/2 + 11);
             DrawWindowBase(enemyX, enemyY/2 , enemyX + 22, enemyY/2 + 11);
@@ -70,9 +73,11 @@ namespace NavalBattles
     {
         public string[,] gameBoard;
         public int x, y;
+        public bool isEnemy;
 
-        public Mesh()
+        public Mesh(bool isEnemy = false)
         {
+            this.isEnemy = isEnemy;
             gameBoard = new string[10, 10];
 
             for (int i = 0; i < 10; i++)
@@ -105,19 +110,21 @@ namespace NavalBattles
                                 toWrite = "X";
                                 break;
                             case "S":
+                                //if (isEnemy) Console.BackgroundColor = ConsoleColor.Red;
                                 toWrite = (isEnemy ? "~" : "\u25A0");
                                 break;
                             case "M":
-                                toWrite = ".";
+                                toWrite = "\u2022";
                                 break;
                         }
                     else
                         toWrite = gameBoard[i, j];
                     Console.Write(toWrite);
+                    //Console.BackgroundColor = ConsoleColor.Black;
                 }
         }
 
-        public void DrawBoardCell(int cellX, int cellY, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black) 
+        public void DrawBoardCell(int cellX, int cellY, bool isEnemy = false, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black) 
         {
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
             string toWrite = "";
@@ -130,14 +137,15 @@ namespace NavalBattles
                     toWrite = "X";
                     break;
                 case "S":
-                    toWrite = "\u25A0";
+                    //if (isEnemy) Console.BackgroundColor = ConsoleColor.Red;
+                    toWrite = (isEnemy ? "~" : "\u25A0");
                     break;
                 case "M":
-                    toWrite = ".";
+                    toWrite = "\u2022";
                     break;
             }
-            //toWrite = (gameBoard[cellX, cellY]);
             Console.Write(toWrite);
+            //Console.BackgroundColor = ConsoleColor.Black;
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
         }
     }

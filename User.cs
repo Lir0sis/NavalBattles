@@ -8,13 +8,12 @@ namespace NavalBattles
 {
     public class User
     {
-        public bool IsFirst = false;
+
         public Interface Interface;
         public Ship[] Size1Ship, Size2Ship, Size3Ship, Size4Ship;
 
-        public User(bool IsFirst)
+        public User()
         {
-            this.IsFirst = IsFirst;
             Interface = new Interface();
             Size1Ship = new Ship[4];
             Size2Ship = new Ship[3];
@@ -72,6 +71,135 @@ namespace NavalBattles
                 }
             }
 
+        }
+
+        public void CheckForDestroyedShips(User playerToCheck)
+        {
+            var board = Interface.EnemyMesh.gameBoard;
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    if (board[y, x] == "D")
+                    {
+                        bool isVertical = true;
+                        bool isHorizontal = true;
+                        int count = 0;
+                        int notD = 0;
+                        while (true)
+                        {
+                            count++;
+                            if (x + count < 10 && isHorizontal)
+                            {
+                                if (board[y, x + count] == "D")
+                                {
+                                    isVertical = false;
+                                    continue;
+                                }
+                                else if (board[y, x + count].ToCharArray()[0].ToString() == "S")
+                                {
+                                    isVertical = false;
+                                    notD++;
+                                    continue;
+                                }
+                            }
+
+                            if (y + count < 10 && isVertical)
+                            {
+                                if (board[y + count, x] == "D")
+                                {
+                                    isHorizontal = false;
+                                    continue;
+                                }
+                                else if (board[y + count, x].ToCharArray()[0].ToString() == "S")
+                                {
+                                    isHorizontal = false;
+                                    notD++;
+                                    continue;
+                                }
+                            }
+
+                            if (notD != 0) 
+                                break;
+
+                            if (isHorizontal && isVertical)
+                            {
+                                int i = 0;
+                                foreach(var key in playerToCheck.Size1Ship)
+                                {
+                                    if (key != null && y == key.Coords[0, 0] && x == key.Coords[0, 1])
+                                    {
+                                        board[y, x] = "D1";
+                                        playerToCheck.Size1Ship[i] = null;
+                                        break;
+                                        
+                                    }
+                                    i++;
+                                }
+                                break;
+                            }
+
+                            if (notD == 0)
+                            {
+                                if (isHorizontal)
+                                    for (int j = 0; j < count; j++)
+                                        board[y, x + j] = $"D{count}";
+
+                                if (isVertical)
+                                    for (int j = 0; j < count; j++)
+                                        board[y + j, x] = $"D{count}";
+
+                                switch (count)
+                                {
+                                    case 2:
+                                        int i = 0;
+                                        foreach (var key in playerToCheck.Size2Ship)
+                                        {
+                                            if (key != null)
+                                                if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
+                                                {
+                                                    playerToCheck.Size2Ship[i] = null;
+                                                    break;
+                                                }
+                                                i++;
+                                        }
+                                        break;
+                                    case 3:
+                                        i = 0;
+                                        foreach (var key in playerToCheck.Size3Ship)
+                                        {
+                                            if (key != null)
+                                                if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
+                                                {
+                                                    playerToCheck.Size3Ship[i] = null;
+                                                    break;
+                                                }
+                                            i++;
+                                        }
+                                        break;
+                                    case 4:
+                                        i = 0;
+                                        foreach (var key in playerToCheck.Size4Ship)
+                                        {
+                                            if (key != null)
+                                                if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
+                                                {
+                                                    playerToCheck.Size4Ship[i] = null;
+                                                    break;
+                                                }
+                                            i++;
+                                        }
+                                        break;
+                                }
+
+
+                            }
+
+                            break;                            
+                        }
+                    }
+                }
+            }
         }
 
         public void CheckForRules()

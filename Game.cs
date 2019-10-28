@@ -10,7 +10,6 @@ namespace NavalBattles
 {
     class Game
     {
-
         static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
@@ -20,15 +19,108 @@ namespace NavalBattles
             Console.WindowLeft = 0;
             Console.WindowTop = 0;
 
-            User player1 = new User(true);
-            User player2 = new User(false);
+            User player1 = new User();
+            User player2 = new User();
 
             Setup(player1);
-            //Setup(player2);
-            
+            Setup(player2);
+
+            PrepareBoard(player2, player1);
+            PrepareBoard(player1, player2);
+
+            while(true)
+            {
+                DoTurn(player1, player2);
+                if (isLooser(player2))
+                    break;
+                DoTurn(player2, player1);
+                if (isLooser(player1))
+                    break;
+            }
+
+            Console.Clear();
+            Console.WriteLine(isLooser(player1) ? "player2 has won" : "player1 has won");
+
             Mesh.SetCursor();
-            //player1.Interface.DrawInterface();
-            //PlaceShips(player1.Interface.EnemyMesh);
+        }
+
+        public static bool isLooser(User playerToCheck)
+        {
+            int Dships = 0;
+            foreach(var key in playerToCheck.Size1Ship)
+                if (key == null) Dships++;
+
+            foreach (var key in playerToCheck.Size2Ship)
+                if (key == null) Dships++;
+
+            foreach (var key in playerToCheck.Size3Ship)
+                if (key == null) Dships++;
+
+            foreach (var key in playerToCheck.Size4Ship)
+                if (key == null) Dships++;
+
+            if (Dships == 10)
+                return true;
+
+            return false;
+        }
+
+        public static void DoTurn(User player, User enemy)
+        {
+            bool hit = true;
+            while (hit)
+            {
+                player.CheckForDestroyedShips(enemy);
+                if (isLooser(enemy))
+                    break;
+                hit = false;
+                player.Interface.DrawInterface();
+                hit = Shoot(player, enemy);
+                UpdateBoard(enemy, player);
+            }
+        }
+        public static void PrepareBoard(User player1, User player2)
+        {
+            player1.Interface.EnemyMesh = player2.Interface.UsrMesh;
+        }
+
+        public static void UpdateBoard(User player1, User player2)
+        {
+            player1.Interface.UsrMesh = player2.Interface.EnemyMesh;
+        }
+
+        public static bool Shoot(User shootingPlayer, User playeBeingShot)
+        {
+            var mesh = shootingPlayer.Interface.EnemyMesh;
+            int posX = 0, posY = 0;
+            while (true)
+            {
+                int preX = 0, preY = 0;
+
+                mesh.DrawBoardCell(posX, posY, true, ConsoleColor.Black, ConsoleColor.Cyan);
+                var Key = Console.ReadKey().Key;
+
+                PickCell(Key, ref posX, ref posY, ref preX, ref preY);
+                mesh.DrawBoardCell(preX, preY, true);
+
+                if (!Action(Key, posX, posY, mesh)) continue;
+
+                mesh.DrawBoardCell(posX, posY, true);
+                Mesh.SetCursor();
+
+                if (mesh.gameBoard[posX, posY].ToCharArray()[0].ToString() == "S")
+                {
+                    mesh.gameBoard[posX, posY] = "D";
+                    return true;
+                }
+                else if (mesh.gameBoard[posX, posY] == "E")
+                {
+                    mesh.gameBoard[posX, posY] = "M";
+                    break;
+                }
+            }
+   
+            return false;
         }
 
         public static void Setup(User player)
@@ -66,7 +158,7 @@ namespace NavalBattles
             {
                 int preX = 0, preY = 0;
 
-                mesh.DrawBoardCell(posX, posY, ConsoleColor.Black, ConsoleColor.Cyan);
+                mesh.DrawBoardCell(posX, posY, false, ConsoleColor.Black, ConsoleColor.Cyan);
                 ConsoleKey Key = Console.ReadKey().Key;
 
                 PickCell(Key, ref posX, ref posY, ref preX, ref preY);
@@ -108,20 +200,16 @@ namespace NavalBattles
             }
         }
 
-        public static bool Action(ConsoleKey Key, int posX, int posY, Mesh mesh) 
+        public static bool Action(ConsoleKey Key, int posX = 0, int posY = 0, Mesh mesh = null)
         {
-            switch (Key)
-            {
-                case ConsoleKey.F1:
-                    return true;
-                case ConsoleKey.Enter:
-                    mesh.gameBoard[posX, posY] = (mesh.gameBoard[posX, posY] != "S" ? "S" : "E");
-                    break;
+            if (Key == ConsoleKey.Enter)
+                return true;
 
-            }
+            if (mesh != null && !mesh.isEnemy && Key == ConsoleKey.E)
+                mesh.gameBoard[posX, posY] = (mesh.gameBoard[posX, posY] != "S" ? "S" : "E");
             return false;
         }
-        
+
         public static void NullifyShips(User usr)
         {
             var mesh = usr.Interface.UsrMesh;

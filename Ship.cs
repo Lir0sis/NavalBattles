@@ -8,12 +8,14 @@ namespace NavalBattles
 {
     public class Ship
     {
-        public int ShipSize;
+
+
+        public int health;
         public int[,] Coords;
 
         public Ship(int ShipSize, int[,] Coords)
         {
-            this.ShipSize = ShipSize;
+            health = ShipSize;
 
             this.Coords = Coords;
         }
