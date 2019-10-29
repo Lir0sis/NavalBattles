@@ -17,7 +17,7 @@ namespace NavalBattles
             EnemyMesh = new Mesh(true);
         }
 
-        public void DrawInterface(int usrX = 4, int usrY = 4, int enemyX = 34, int enemyY = 4)
+        public void DrawInterface(int usrX = 4, int usrY = 4, int enemyX = 32, int enemyY = 4)
         {
             EnemyMesh.x = enemyX + 2;
             EnemyMesh.y = enemyY + 2;
@@ -34,7 +34,9 @@ namespace NavalBattles
             DrawWindowBase(enemyX, enemyY/2 , enemyX + 22, enemyY/2 + 11);
             DrawWindowBase(4, 15, 54, 20);
 
-            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2);
+            //Console.Clear();
+
+            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2, false);
             EnemyMesh.DrawGameBoard(enemyX + 2, enemyY + 2, true);
 
             Mesh.SetCursor();

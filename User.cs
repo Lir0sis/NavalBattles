@@ -91,6 +91,7 @@ namespace NavalBattles
                             count++;
                             if (x + count < 10 && isHorizontal)
                             {
+                                if (x - 1 >= 0 && board[y, x - 1].ToCharArray()[0].ToString() == "S") notD++;
                                 if (board[y, x + count] == "D")
                                 {
                                     isVertical = false;
@@ -98,7 +99,7 @@ namespace NavalBattles
                                 }
                                 else if (board[y, x + count].ToCharArray()[0].ToString() == "S")
                                 {
-                                    isVertical = false;
+                                   isVertical = false;
                                     notD++;
                                     continue;
                                 }
@@ -106,6 +107,7 @@ namespace NavalBattles
 
                             if (y + count < 10 && isVertical)
                             {
+                                if (y - 1 >= 0 && board[y - 1, x].ToCharArray()[0].ToString() == "S") notD++;
                                 if (board[y + count, x] == "D")
                                 {
                                     isHorizontal = false;
@@ -143,11 +145,15 @@ namespace NavalBattles
                             {
                                 if (isHorizontal)
                                     for (int j = 0; j < count; j++)
+                                    {
                                         board[y, x + j] = $"D{count}";
+                                    }
 
                                 if (isVertical)
                                     for (int j = 0; j < count; j++)
+                                    {
                                         board[y + j, x] = $"D{count}";
+                                    }
 
                                 switch (count)
                                 {
@@ -192,7 +198,6 @@ namespace NavalBattles
                                         break;
                                 }
 
-
                             }
 
                             break;                            
@@ -200,6 +205,30 @@ namespace NavalBattles
                     }
                 }
             }
+        }
+
+        public void SurroundDestrShips()
+        {
+            var board = Interface.EnemyMesh.gameBoard;
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    if (board[y, x].ToCharArray()[0].ToString() == "D" && board[y, x].Length > 1)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            for (int j = 0; j < 3; j++)
+                            {
+                                if (x - 1 + j > -1 && y - 1 + i > -1 && x - 1 + j < 10 && y - 1 + i < 10)
+                                    if (board[y - 1 + i, x - 1 + j] == "E") board[y - 1 + i, x - 1 + j] = "M";
+                            }
+                        }
+                    }
+
+                }
+            }
+
         }
 
         public void CheckForRules()

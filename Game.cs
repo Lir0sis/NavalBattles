@@ -71,6 +71,7 @@ namespace NavalBattles
             while (hit)
             {
                 player.CheckForDestroyedShips(enemy);
+                player.SurroundDestrShips();
                 if (isLooser(enemy))
                     break;
                 hit = false;
