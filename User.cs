@@ -89,118 +89,133 @@ namespace NavalBattles
                         while (true)
                         {
                             count++;
+
                             if (x + count < 10 && isHorizontal)
                             {
-                                if (x - 1 >= 0 && board[y, x - 1].ToCharArray()[0].ToString() == "S") notD++;
                                 if (board[y, x + count] == "D")
                                 {
                                     isVertical = false;
-                                    continue;
-                                }
-                                else if (board[y, x + count].ToCharArray()[0].ToString() == "S")
-                                {
-                                   isVertical = false;
-                                    notD++;
                                     continue;
                                 }
                             }
 
                             if (y + count < 10 && isVertical)
                             {
-                                if (y - 1 >= 0 && board[y - 1, x].ToCharArray()[0].ToString() == "S") notD++;
                                 if (board[y + count, x] == "D")
                                 {
                                     isHorizontal = false;
                                     continue;
                                 }
-                                else if (board[y + count, x].ToCharArray()[0].ToString() == "S")
-                                {
-                                    isHorizontal = false;
-                                    notD++;
-                                    continue;
-                                }
                             }
 
-                            if (notD != 0) 
+                            #region cool
+                            /*
+                            int wrongCount = 0;
+                            while (true)
+                            {
+                                wrongCount++;
+
+                                if (isHorizontal && x - wrongCount >= 0)
+                                {
+                                    if (board[y, x - wrongCount].ToCharArray()[0].ToString() == "S")
+                                        notD++;
+                                    continue;
+                                    //else if (board[y, x - wrongCount].ToCharArray()[0].ToString() == "E") break;
+                                }
+
+                                if (isVertical && y - wrongCount >= 0)
+                                {
+                                    if (board[y - wrongCount, x].ToCharArray()[0].ToString() == "S")
+                                        notD++;
+                                    continue;
+                                }
                                 break;
+                            }
+                            
+                            if (notD > 0) 
+                                break;
+                            */
+                            #endregion
 
                             if (isHorizontal && isVertical)
                             {
                                 int i = 0;
-                                foreach(var key in playerToCheck.Size1Ship)
+                                foreach (var key in playerToCheck.Size1Ship)
                                 {
                                     if (key != null && y == key.Coords[0, 0] && x == key.Coords[0, 1])
                                     {
                                         board[y, x] = "D1";
                                         playerToCheck.Size1Ship[i] = null;
                                         break;
-                                        
+
                                     }
                                     i++;
                                 }
                                 break;
                             }
 
-                            if (notD == 0)
+
+                            bool isDestroyed = false;
+                            switch (count)
                             {
-                                if (isHorizontal)
-                                    for (int j = 0; j < count; j++)
+                                case 2:
+                                    int i = 0;
+                                    foreach (var key in playerToCheck.Size2Ship)
                                     {
-                                        board[y, x + j] = $"D{count}";
+                                        if (key != null)
+                                            if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
+                                            {
+                                                playerToCheck.Size2Ship[i] = null;
+                                                isDestroyed = true;
+                                                break;
+                                            }
+                                        i++;
                                     }
-
-                                if (isVertical)
-                                    for (int j = 0; j < count; j++)
+                                    break;
+                                case 3:
+                                    i = 0;
+                                    foreach (var key in playerToCheck.Size3Ship)
                                     {
-                                        board[y + j, x] = $"D{count}";
+                                        if (key != null)
+                                            if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
+                                            {
+                                                playerToCheck.Size3Ship[i] = null;
+                                                isDestroyed = true;
+                                                break;
+                                            }
+                                        i++;
                                     }
-
-                                switch (count)
-                                {
-                                    case 2:
-                                        int i = 0;
-                                        foreach (var key in playerToCheck.Size2Ship)
-                                        {
-                                            if (key != null)
-                                                if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
-                                                {
-                                                    playerToCheck.Size2Ship[i] = null;
-                                                    break;
-                                                }
-                                                i++;
-                                        }
-                                        break;
-                                    case 3:
-                                        i = 0;
-                                        foreach (var key in playerToCheck.Size3Ship)
-                                        {
-                                            if (key != null)
-                                                if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
-                                                {
-                                                    playerToCheck.Size3Ship[i] = null;
-                                                    break;
-                                                }
-                                            i++;
-                                        }
-                                        break;
-                                    case 4:
-                                        i = 0;
-                                        foreach (var key in playerToCheck.Size4Ship)
-                                        {
-                                            if (key != null)
-                                                if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
-                                                {
-                                                    playerToCheck.Size4Ship[i] = null;
-                                                    break;
-                                                }
-                                            i++;
-                                        }
-                                        break;
-                                }
-
+                                    break;
+                                case 4:
+                                    i = 0;
+                                    foreach (var key in playerToCheck.Size4Ship)
+                                    {
+                                        if (key != null)
+                                            if (y >= key.Coords[0, 0] && y <= key.Coords[1, 0] && x >= key.Coords[0, 1] && x <= key.Coords[1, 1])
+                                            {
+                                                playerToCheck.Size4Ship[i] = null;
+                                                isDestroyed = true;
+                                                break;
+                                            }
+                                        i++;
+                                    }
+                                    break;
                             }
 
-                            break;                            
+                            if (isDestroyed && isHorizontal)
+                                for (int j = 0; j < count; j++)
+                                {
+                                    board[y, x + j] = $"D{count}";
+                                }
+
+                            if (isDestroyed && isVertical)
+                                for (int j = 0; j < count; j++)
+                                {
+                                    board[y + j, x] = $"D{count}";
+                                }
+
+
+                            break;
                         }
                     }
                 }

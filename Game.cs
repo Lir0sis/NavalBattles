@@ -79,6 +79,8 @@ namespace NavalBattles
                 hit = Shoot(player, enemy);
                 UpdateBoard(enemy, player);
             }
+            player.CheckForDestroyedShips(enemy);
+
         }
         public static void PrepareBoard(User player1, User player2)
         {
@@ -98,15 +100,15 @@ namespace NavalBattles
             {
                 int preX = 0, preY = 0;
 
-                mesh.DrawBoardCell(posX, posY, true, ConsoleColor.Black, ConsoleColor.Cyan);
+                mesh.DrawBoardCell(posX, posY, true, false, ConsoleColor.Black, ConsoleColor.Cyan);
                 var Key = Console.ReadKey().Key;
 
                 PickCell(Key, ref posX, ref posY, ref preX, ref preY);
-                mesh.DrawBoardCell(preX, preY, true);
+                mesh.DrawBoardCell(preX, preY, true, false);
 
                 if (!Action(Key, posX, posY, mesh)) continue;
 
-                mesh.DrawBoardCell(posX, posY, true);
+                mesh.DrawBoardCell(posX, posY, true, false);
                 Mesh.SetCursor();
 
                 if (mesh.gameBoard[posX, posY].ToCharArray()[0].ToString() == "S")
@@ -126,11 +128,12 @@ namespace NavalBattles
 
         public static void Setup(User player)
         {
+            player.Interface.UsrMesh.gameBoard[0, 0] = "E";
             player.Interface.DrawInterface();
 
             while (true)
             {
-                player.Interface.UsrMesh.DrawGameBoard(6, 6);
+                player.Interface.UsrMesh.DrawGameBoard(6, 6, false, false);
                 try
                 {
                     PlaceShips(player);
@@ -159,16 +162,16 @@ namespace NavalBattles
             {
                 int preX = 0, preY = 0;
 
-                mesh.DrawBoardCell(posX, posY, false, ConsoleColor.Black, ConsoleColor.Cyan);
+                mesh.DrawBoardCell(posX, posY, false, false, ConsoleColor.Black, ConsoleColor.Cyan);
                 ConsoleKey Key = Console.ReadKey().Key;
 
                 PickCell(Key, ref posX, ref posY, ref preX, ref preY);
-                mesh.DrawBoardCell(preX, preY);
+                mesh.DrawBoardCell(preX, preY, false, false);
 
                 if (!Action(Key, posX, posY, mesh)) continue;
                 usr.CheckForBoardShips();
 
-                mesh.DrawBoardCell(posX, posY);
+                mesh.DrawBoardCell(posX, posY, false, false);
                 Mesh.SetCursor();
                 break;
             }

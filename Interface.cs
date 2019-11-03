@@ -36,8 +36,8 @@ namespace NavalBattles
 
             //Console.Clear();
 
-            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2, false);
-            EnemyMesh.DrawGameBoard(enemyX + 2, enemyY + 2, true);
+            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2, false, false);
+            EnemyMesh.DrawGameBoard(enemyX + 2, enemyY + 2, true, false);
 
             Mesh.SetCursor();
         }
@@ -126,26 +126,29 @@ namespace NavalBattles
                 }
         }
 
-        public void DrawBoardCell(int cellX, int cellY, bool isEnemy = false, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black) 
+        public void DrawBoardCell(int cellX, int cellY, bool isEnemy = false, bool drawSymbols = true, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black) 
         {
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
             string toWrite = "";
-            switch (gameBoard[cellX, cellY].ToCharArray()[0].ToString())
-            {
-                case "E":
-                    toWrite = "~";
-                    break;
-                case "D":
-                    toWrite = "X";
-                    break;
-                case "S":
-                    //if (isEnemy) Console.BackgroundColor = ConsoleColor.Red;
-                    toWrite = (isEnemy ? "~" : "\u25A0");
-                    break;
-                case "M":
-                    toWrite = "\u2022";
-                    break;
-            }
+            if (drawSymbols)
+                switch (gameBoard[cellX, cellY].ToCharArray()[0].ToString())
+                {
+                    case "E":
+                        toWrite = "~";
+                        break;
+                    case "D":
+                        toWrite = "X";
+                        break;
+                    case "S":
+                        //if (isEnemy) Console.BackgroundColor = ConsoleColor.Red;
+                        toWrite = (isEnemy ? "~" : "\u25A0");
+                        break;
+                    case "M":
+                        toWrite = "\u2022";
+                        break;
+                }
+            else toWrite = gameBoard[cellX, cellY];
+
             Console.Write(toWrite);
             //Console.BackgroundColor = ConsoleColor.Black;
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
