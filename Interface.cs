@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace NavalBattles
 {
@@ -17,12 +14,12 @@ namespace NavalBattles
             EnemyMesh = new Mesh(true);
         }
 
-        public void DrawInterface(int usrX = 4, int usrY = 4, int enemyX = 32, int enemyY = 4)
+        public void DrawInterface(int usrX = 4, int usrY = 7, int enemyX = 32, int enemyY = 7)
         {
             EnemyMesh.x = enemyX + 2;
-            EnemyMesh.y = enemyY + 2;
+            EnemyMesh.y = enemyY + 2 - 1;
             UsrMesh.x = usrX + 2;
-            UsrMesh.y = usrY + 2;
+            UsrMesh.y = usrY + 2  - 1;
             
             usrX += (usrX % 2 != 0 ? 1 : 0);
             usrY += (usrY % 2 != 0 ? 1 : 0);
@@ -32,16 +29,38 @@ namespace NavalBattles
 
             DrawWindowBase(usrX, usrY/2, usrX + 22, usrY/2 + 11);
             DrawWindowBase(enemyX, enemyY/2 , enemyX + 22, enemyY/2 + 11);
-            DrawWindowBase(4, 15, 54, 20);
+            DrawWindowBase(usrX/2 + 17, 1, enemyX + 22 - usrX/2 - 13 , 3);
+            DrawWindowBase(4, 17, 54, 22);
+            DrawWindowBase(4, 19, 54, 22);
+            DrawWindowBase(4, 19, 29, 22);
+            
 
             //Console.Clear();
 
-            UsrMesh.DrawGameBoard(usrX + 2, usrY + 2, false, false);
-            EnemyMesh.DrawGameBoard(enemyX + 2, enemyY + 2, true, false);
+            UsrMesh.DrawGameBoard(UsrMesh.x, UsrMesh.y);
+            EnemyMesh.DrawGameBoard(EnemyMesh.x, EnemyMesh.y, true);
 
             Mesh.SetCursor();
         }
 
+        public static void Pause(User player, string message = "")
+        {
+            Console.Clear();
+            DrawWindowBase(Console.BufferWidth / 2 - 11, Console.BufferHeight / 2 - 1, Console.BufferWidth / 2 + 11, Console.BufferHeight / 2 + 1) ;
+            if( message == "")
+            {
+                Mesh.SetCursor(Console.BufferWidth / 2 - 8, Console.BufferHeight / 2);
+                Console.Write($"Очередь Игрока №{Convert.ToInt32(player.isSecond) + 1}");
+            }
+            else
+            {
+                Mesh.SetCursor(Console.BufferWidth / 2 - 8, Console.BufferHeight / 2);
+                Console.Write(message);
+            }
+            Console.ReadKey();
+            Console.Clear();
+        }
+        
         public static void DrawWindowBase(int X1, int Y1, int X2, int Y2)
         {
             int length = X2 - X1, height = Y2 - Y1;
@@ -63,11 +82,70 @@ namespace NavalBattles
             Mesh.SetCursor();
         }
 
-        public void DrawSetupStatus(User player)
+        public void CurrentPlayer(User player)
         {
-            int[,] Borders = { { 5, 14 }, { 53, 19 } };
+            Mesh.SetCursor(23, 2);
+            Console.WriteLine($"Ход Игрока №{Convert.ToInt32(player.isSecond) + 1}");
+            Mesh.SetCursor();
+        }
+        
+        static public void WriteAction(string message = "", ConsoleColor color = ConsoleColor.White)
+        {
+            Mesh.SetCursor(6, 18);
+            Console.Write("                                                ");
+            Mesh.SetCursor(6, 18, 1, color);
+            Console.Write(message);
+        }
 
+        public static void UpdatePlayersStatus(User player1 = null, User player2 = null)
+        {
+            int count4 = 0, count3 = 0, count2 = 0, count1 = 0;
 
+            if (player1 != null)
+            {
+                Mesh.SetCursor(9, 20);
+                
+                foreach (var value in player1.Size4Ship)
+                    if (value == null) ++count4;
+                foreach (var value in player1.Size3Ship)
+                    if (value == null) ++count3;
+                foreach (var value in player1.Size2Ship)
+                    if (value == null) ++count2;
+                foreach (var value in player1.Size1Ship)
+                    if (value == null) ++count1;
+
+                Console.Write($" 4\u25A0: {player1.Size4Ship.Length - count4} |");
+                Console.Write($" 3\u25A0: {player1.Size3Ship.Length - count3} ");
+
+                Mesh.SetCursor(9, 20 + 1);
+
+                Console.Write($" 2\u25A0: {player1.Size2Ship.Length - count2} |");
+                Console.Write($" 1\u25A0: {player1.Size1Ship.Length - count1} ");
+
+            }
+
+            if (player2 == null)
+                return;
+
+            Mesh.SetCursor(34, 20);
+
+            count4 = 0; count3 = 0; count2 = 0; count1 = 0;
+            foreach (var value in player2.Size4Ship)
+                if (value == null) ++count4;
+            foreach (var value in player2.Size3Ship)
+                if (value == null) ++count3;
+            foreach (var value in player2.Size2Ship)
+                if (value == null) ++count2;
+            foreach (var value in player2.Size1Ship)
+                if (value == null) ++count1;
+
+            Console.Write($" 4\u25A0: {player2.Size4Ship.Length - count4} |");
+            Console.Write($" 3\u25A0: {player2.Size3Ship.Length - count3} ");
+
+            Mesh.SetCursor(34, 20 + 1);
+
+            Console.Write($" 2\u25A0: {player2.Size2Ship.Length - count2} |");
+            Console.Write($" 1\u25A0: {player2.Size1Ship.Length - count1} ");
         }
     }
 
@@ -87,7 +165,7 @@ namespace NavalBattles
                     gameBoard[i, j] = "E";
         }
 
-        public static void SetCursor(int x = 0, int y = 21, int spacingForX = 1, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black)
+        public static void SetCursor(int x = 0, int y = 24, int spacingForX = 1, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black)
         {
             Console.BackgroundColor = Bcolor;
             Console.ForegroundColor = color;
@@ -97,6 +175,9 @@ namespace NavalBattles
 
         public void DrawGameBoard(int offsetX, int offsetY, bool isEnemy = false, bool drawSymbols = true) 
         {
+            int CursorX = Console.CursorLeft;
+            int CursorY = Console.CursorTop;
+            offsetY += 2;
             for (int i = 0; i < 10; i++)
                 for (int j = 0; j < 10; j++)
                 {
@@ -123,7 +204,9 @@ namespace NavalBattles
                         toWrite = gameBoard[i, j];
                     Console.Write(toWrite);
                     //Console.BackgroundColor = ConsoleColor.Black;
+                    
                 }
+            SetCursor(CursorX, CursorY);
         }
 
         public void DrawBoardCell(int cellX, int cellY, bool isEnemy = false, bool drawSymbols = true, ConsoleColor color = ConsoleColor.White, ConsoleColor Bcolor = ConsoleColor.Black) 
@@ -152,6 +235,24 @@ namespace NavalBattles
             Console.Write(toWrite);
             //Console.BackgroundColor = ConsoleColor.Black;
             SetCursor(x + cellX * 2, y - 3 + cellY, 1, color, Bcolor);
+        }
+
+        public void DrawLooseAnimation()
+        {
+            for (int i = 10 - 1; i > -10; i--)
+            {
+                int x = i > 0 ? i : 0;
+                int y = i < 0 ? -i : 0;
+
+                for (int j = 0; ; j++)
+                {
+                    if (x + j >= 10 || y + j >= 10)
+                        break;
+                    DrawBoardCell(y + j, x + j, false, true, ConsoleColor.Red, ConsoleColor.Red);
+                    Thread.Sleep(100 / (10 - Math.Abs(i)));
+                }
+            }
+
         }
     }
 }

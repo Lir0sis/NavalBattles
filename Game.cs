@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Diagnostics;
 
 namespace NavalBattles
 {
@@ -12,17 +7,27 @@ namespace NavalBattles
     {
         static void Main(string[] args)
         {
+
             Console.OutputEncoding = Encoding.UTF8;
             Console.Title = "NavalBattles";
-            Console.SetWindowSize(60, 22);
-            Console.SetBufferSize(60, 22);
+            Console.SetWindowSize(60, 25);
+            Console.SetBufferSize(60, 25);
             Console.WindowLeft = 0;
             Console.WindowTop = 0;
 
             User player1 = new User();
-            User player2 = new User();
+            User player2 = new User(true);
 
+            Interface.Pause(null, "   Морской Бой");
+
+            Interface.WriteAction("Игрок №1 подготовиться!", ConsoleColor.Yellow);
+            Interface.UpdatePlayersStatus(player1, player2);
             Setup(player1);
+
+            Interface.Pause(player2);
+
+            Interface.WriteAction("Игрок №2 подготовиться!", ConsoleColor.Yellow);
+            Interface.UpdatePlayersStatus(player2, player1);
             Setup(player2);
 
             PrepareBoard(player2, player1);
@@ -30,16 +35,30 @@ namespace NavalBattles
 
             while(true)
             {
+                Interface.Pause(player1);
+
                 DoTurn(player1, player2);
+                
                 if (isLooser(player2))
                     break;
+
+                Interface.Pause(player2);
+
                 DoTurn(player2, player1);
                 if (isLooser(player1))
                     break;
             }
-
-            Console.Clear();
-            Console.WriteLine(isLooser(player1) ? "player2 has won" : "player1 has won");
+            
+            if (isLooser(player1))
+            {
+                player2.Interface.EnemyMesh.DrawLooseAnimation();
+                Interface.WriteAction("Игрок №1 - победил!", ConsoleColor.Green);
+            }
+            else if (isLooser(player2))
+            {
+                player1.Interface.EnemyMesh.DrawLooseAnimation();
+                Interface.WriteAction("Игрок №2 - победил!", ConsoleColor.Green);
+            }
 
             Mesh.SetCursor();
         }
@@ -67,6 +86,9 @@ namespace NavalBattles
 
         public static void DoTurn(User player, User enemy)
         {
+            player.Interface.DrawInterface();
+            Interface.UpdatePlayersStatus(player, enemy);
+            player.Interface.CurrentPlayer(player);
             bool hit = true;
             while (hit)
             {
@@ -75,7 +97,7 @@ namespace NavalBattles
                 if (isLooser(enemy))
                     break;
                 hit = false;
-                player.Interface.DrawInterface();
+                player.Interface.EnemyMesh.DrawGameBoard(player.Interface.EnemyMesh.x, player.Interface.EnemyMesh.y, true);
                 hit = Shoot(player, enemy);
                 UpdateBoard(enemy, player);
             }
@@ -84,12 +106,12 @@ namespace NavalBattles
         }
         public static void PrepareBoard(User player1, User player2)
         {
-            player1.Interface.EnemyMesh = player2.Interface.UsrMesh;
+            player1.Interface.EnemyMesh.gameBoard = player2.Interface.UsrMesh.gameBoard;
         }
 
         public static void UpdateBoard(User player1, User player2)
         {
-            player1.Interface.UsrMesh = player2.Interface.EnemyMesh;
+            player1.Interface.UsrMesh.gameBoard = player2.Interface.EnemyMesh.gameBoard;
         }
 
         public static bool Shoot(User shootingPlayer, User playeBeingShot)
@@ -100,24 +122,25 @@ namespace NavalBattles
             {
                 int preX = 0, preY = 0;
 
-                mesh.DrawBoardCell(posX, posY, true, false, ConsoleColor.Black, ConsoleColor.Cyan);
+                mesh.DrawBoardCell(posX, posY, true, true, ConsoleColor.Black, ConsoleColor.Cyan);
                 var Key = Console.ReadKey().Key;
 
                 PickCell(Key, ref posX, ref posY, ref preX, ref preY);
-                mesh.DrawBoardCell(preX, preY, true, false);
+                mesh.DrawBoardCell(preX, preY, true, true);
 
                 if (!Action(Key, posX, posY, mesh)) continue;
-
-                mesh.DrawBoardCell(posX, posY, true, false);
+                mesh.DrawBoardCell(posX, posY, true, true);
                 Mesh.SetCursor();
 
                 if (mesh.gameBoard[posX, posY].ToCharArray()[0].ToString() == "S")
                 {
                     mesh.gameBoard[posX, posY] = "D";
+                    Interface.WriteAction($"Игрок №{Convert.ToInt32(!shootingPlayer.isSecond) + 1}: есть пробитие!", ConsoleColor.Green);
                     return true;
                 }
                 else if (mesh.gameBoard[posX, posY] == "E")
                 {
+                    Interface.WriteAction($"Игрок №{Convert.ToInt32(!shootingPlayer.isSecond) + 1}: мимо!", ConsoleColor.Yellow);
                     mesh.gameBoard[posX, posY] = "M";
                     break;
                 }
@@ -128,28 +151,32 @@ namespace NavalBattles
 
         public static void Setup(User player)
         {
+            player.Interface.CurrentPlayer(player);
             player.Interface.UsrMesh.gameBoard[0, 0] = "E";
             player.Interface.DrawInterface();
 
             while (true)
             {
-                player.Interface.UsrMesh.DrawGameBoard(6, 6, false, false);
+                player.Interface.UsrMesh.DrawGameBoard(6, 9);
                 try
                 {
                     PlaceShips(player);
                     player.CheckForRules();
                 }
-                catch (ShipSetupFail)
+                catch (ShipSetupFail exception)
                 {
+                    Interface.WriteAction("Расположение: " + exception.reason, ConsoleColor.Red);
                     NullifyShips(player);
                     continue;
                 }
-                catch (BrokenRules)
+                catch (BrokenRules exception)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Interface.WriteAction("Правила: " + exception.reason, ConsoleColor.Red);
+                    Console.ForegroundColor = ConsoleColor.White;
                     NullifyShips(player);
                     continue;
                 }
-
                 break;
             }
         }
@@ -162,16 +189,16 @@ namespace NavalBattles
             {
                 int preX = 0, preY = 0;
 
-                mesh.DrawBoardCell(posX, posY, false, false, ConsoleColor.Black, ConsoleColor.Cyan);
+                mesh.DrawBoardCell(posX, posY, false, true, ConsoleColor.Black, ConsoleColor.Cyan);
                 ConsoleKey Key = Console.ReadKey().Key;
 
                 PickCell(Key, ref posX, ref posY, ref preX, ref preY);
-                mesh.DrawBoardCell(preX, preY, false, false);
+                mesh.DrawBoardCell(preX, preY, false, true);
 
                 if (!Action(Key, posX, posY, mesh)) continue;
                 usr.CheckForBoardShips();
 
-                mesh.DrawBoardCell(posX, posY, false, false);
+                mesh.DrawBoardCell(posX, posY, false, true);
                 Mesh.SetCursor();
                 break;
             }
@@ -234,17 +261,19 @@ namespace NavalBattles
     public class ShipSetupFail : Exception
     {
         private int size;
+        public string reason;
         public ShipSetupFail()
         {
         }
         public ShipSetupFail(string message, int size) : base(message)
         {
             this.size = size;
+            reason = message;
         }
         public ShipSetupFail(string message, Exception inner)
             : base(message, inner)
         {
-
+            reason = message;
         }
         public int GetSize()
         {
@@ -253,16 +282,18 @@ namespace NavalBattles
     }
     public class BrokenRules : Exception
     {
+        public string reason = "";
         public BrokenRules()
         {
         }
         public BrokenRules(string message) : base(message)
         {
+            reason = message;
         }
         public BrokenRules(string message, Exception inner)
             : base(message, inner)
         {
-
+            reason = message;
         }
     }
 }

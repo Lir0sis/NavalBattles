@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NavalBattles
 {
@@ -11,14 +7,16 @@ namespace NavalBattles
 
         public Interface Interface;
         public Ship[] Size1Ship, Size2Ship, Size3Ship, Size4Ship;
+        public bool isSecond;
 
-        public User()
+        public User(bool isfirst = false)
         {
             Interface = new Interface();
             Size1Ship = new Ship[4];
             Size2Ship = new Ship[3];
             Size3Ship = new Ship[2];
             Size4Ship = new Ship[1];
+            isSecond = isfirst;
         }
 
         public void CheckForBoardShips()
@@ -85,7 +83,7 @@ namespace NavalBattles
                         bool isVertical = true;
                         bool isHorizontal = true;
                         int count = 0;
-                        int notD = 0;
+
                         while (true)
                         {
                             count++;
@@ -214,7 +212,11 @@ namespace NavalBattles
                                     board[y + j, x] = $"D{count}";
                                 }
 
-
+                            if (isDestroyed)
+                                {
+                                Interface.WriteAction($"Игрок №{Convert.ToInt32(playerToCheck.isSecond) + 1}: {count}\u25A0 корабль потоплен!", ConsoleColor.Green);
+                                Interface.UpdatePlayersStatus(null, playerToCheck);
+                                }
                             break;
                         }
                     }
@@ -275,7 +277,7 @@ namespace NavalBattles
                             count = 3;
 
                         if (count > 2)
-                            throw new BrokenRules();
+                            throw new BrokenRules("корабль неправильно расположен");
                     }
                 }
             }
@@ -284,7 +286,7 @@ namespace NavalBattles
                 Array.IndexOf(Size2Ship, null) != -1 || 
                 Array.IndexOf(Size3Ship, null) != -1 || 
                 Array.IndexOf(Size4Ship, null) != -1)
-                throw new BrokenRules();
+                throw new BrokenRules("неверное количество кораблей");
         }
 
         public void SetupSingleShip(int[,] Coords, int size = 1)
@@ -296,28 +298,28 @@ namespace NavalBattles
                     index = Array.IndexOf(Size1Ship, null);
                     if (index != -1)
                         Size1Ship[index] = new Ship(1, Coords);
-                    else throw new ShipSetupFail("Size1 ship", 1);
+                    else throw new ShipSetupFail("1\u25A0 корабль", 1);
                     break;
                 case 2:
                     index = Array.IndexOf(Size2Ship, null);
                     if (index != -1)
                         Size2Ship[index] = new Ship(2, Coords);
-                    else throw new ShipSetupFail("Size2 ship", 2);
+                    else throw new ShipSetupFail("2\u25A0 корабль", 2);
                     break;
                 case 3:
                     index = Array.IndexOf(Size3Ship, null);
                     if (index != -1)
                         Size3Ship[index] = new Ship(3, Coords);
-                    else throw new ShipSetupFail("Size3 ship", 3);
+                    else throw new ShipSetupFail("3\u25A0 корабль", 3);
                     break;
                 case 4:
                     index = Array.IndexOf(Size4Ship, null);
                     if (index != -1)
                         Size4Ship[index] = new Ship(4, Coords);
-                    else throw new ShipSetupFail("Size4 ship", 4);
+                    else throw new ShipSetupFail("4\u25A0 корабль", 4);
                     break;
                 default:
-                    throw new ShipSetupFail("Wrong sized ship", size);
+                    throw new ShipSetupFail("неверный размер корабля", size);
             }
 
             if (Coords[0, 1] - Coords[1, 1] != 0)
