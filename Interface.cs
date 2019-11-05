@@ -6,10 +6,11 @@ namespace NavalBattles
     public class Interface
     {
         public Mesh UsrMesh, EnemyMesh;
+        bool isSecond;
 
-        public Interface()
+        public Interface(bool isSecond = false)
         {
-            
+            this.isSecond = isSecond;
             UsrMesh = new Mesh();
             EnemyMesh = new Mesh(true);
         }
@@ -33,12 +34,20 @@ namespace NavalBattles
             DrawWindowBase(4, 17, 54, 22);
             DrawWindowBase(4, 19, 54, 22);
             DrawWindowBase(4, 19, 29, 22);
+            DrawWindowBase(usrX , usrY - 6, usrX + 4, usrY - 4);
+            DrawWindowBase(enemyX + 22 - 4, enemyY - 6, enemyX + 22, enemyY -4);
             
 
             //Console.Clear();
 
             UsrMesh.DrawGameBoard(UsrMesh.x, UsrMesh.y);
             EnemyMesh.DrawGameBoard(EnemyMesh.x, EnemyMesh.y, true);
+
+            Mesh.SetCursor(usrX + 2, usrY - 5, 1, ConsoleColor.Yellow);
+            Console.Write(Convert.ToInt32(isSecond) + 1);
+
+            Mesh.SetCursor(enemyX + 22 - 2, enemyY - 5, 1, ConsoleColor.Yellow);
+            Console.Write(Convert.ToInt32(!isSecond) + 1);
 
             Mesh.SetCursor();
         }

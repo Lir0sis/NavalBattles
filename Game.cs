@@ -20,13 +20,13 @@ namespace NavalBattles
 
             Interface.Pause(null, "   Морской Бой");
 
-            Interface.WriteAction("Игрок №1 подготовиться!", ConsoleColor.Yellow);
+            Interface.WriteAction("Игрок №1 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
             Interface.UpdatePlayersStatus(player1, player2);
             Setup(player1);
 
             Interface.Pause(player2);
 
-            Interface.WriteAction("Игрок №2 подготовиться!", ConsoleColor.Yellow);
+            Interface.WriteAction("Игрок №2 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
             Interface.UpdatePlayersStatus(player2, player1);
             Setup(player2);
 

@@ -9,14 +9,14 @@ namespace NavalBattles
         public Ship[] Size1Ship, Size2Ship, Size3Ship, Size4Ship;
         public bool isSecond;
 
-        public User(bool isfirst = false)
+        public User(bool isSecond = false)
         {
-            Interface = new Interface();
+            Interface = new Interface(isSecond);
             Size1Ship = new Ship[4];
             Size2Ship = new Ship[3];
             Size3Ship = new Ship[2];
             Size4Ship = new Ship[1];
-            isSecond = isfirst;
+            this.isSecond = isSecond;
         }
 
         public void CheckForBoardShips()
