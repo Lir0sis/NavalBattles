@@ -71,8 +71,10 @@ namespace NavalBattles
 
         }
 
-        public void CheckForDestroyedShips(User playerToCheck)
+        public void CheckForDestroyedShips(User playerToCheck, out bool hasDestroyed)
         {
+            hasDestroyed = false;
+
             var board = Interface.EnemyMesh.gameBoard;
             for (int y = 0; y < 10; y++)
             {
@@ -217,6 +219,8 @@ namespace NavalBattles
                                 Interface.WriteAction($"Игрок №{Convert.ToInt32(playerToCheck.isSecond) + 1}: {count}\u25A0 корабль потоплен!", ConsoleColor.Green);
                                 Interface.UpdatePlayersStatus(null, playerToCheck);
                                 }
+
+                            hasDestroyed = isDestroyed;
                             break;
                         }
                     }
@@ -248,7 +252,7 @@ namespace NavalBattles
 
         }
 
-        public void CheckForRules()
+        public void CheckForRules(bool BotCheck = false)
         {
             var mesh = Interface.UsrMesh;
             var board = mesh.gameBoard;
@@ -257,7 +261,61 @@ namespace NavalBattles
             {
                 for (int x = 0; x < 10; x++)
                 {
-                    if ( board[y,x].ToCharArray()[0].ToString() == "S")
+                    if (BotCheck && board[y, x].ToCharArray()[0].ToString() == "S" && board[y, x].ToCharArray().Length == 2)
+                    {
+                        board[y, x] += "C";
+                        int bcount = 1;
+                        bool isVertical = true;
+                        bool isHorizontal = true;
+                        int x1 = x, y1 = y;
+
+                        while (bcount <= int.Parse(board[y, x].ToCharArray()[1].ToString()) + 1)
+                        {
+                            x1 = isHorizontal ? x + bcount - 1 : x1;
+                            y1 = isVertical ? y + bcount - 1 : y1;
+                            
+                            #region diagonal check
+                            if (y1 + 1 < 10 && x1 + 1 < 10 && board[y1 + 1, x1 + 1] != "E")
+                                throw new BrokenRules("корабль неправильно расположен");
+                            else if (y1 + 1 < 10 && x1 - 1 > 0 && board[y1 + 1, x1 - 1] != "E")
+                                throw new BrokenRules("корабль неправильно расположен");
+                            else if (y1 - 1 > 0 && x1 + 1 < 10 && board[y1 - 1, x1 + 1] != "E")
+                                throw new BrokenRules("корабль неправильно расположен");
+                            else if (y1 - 1 > 0 && x1 - 1 > 0 && board[y1 - 1, x1 - 1] != "E")
+                                throw new BrokenRules("корабль неправильно расположен");
+                            #endregion
+
+                            if (x1 + 1 < 10 && isHorizontal)
+                            {
+                                if (board[y1, x1].Length > 1 && board[y1,x1 + 1] == board[y1, x1].Substring(0, 2))
+                                {
+                                    board[y1, x1 + 1] += "C";
+                                    isVertical = false;
+                                    bcount++;
+                                    continue;
+                                }
+                            }
+
+                            if (y1 + 1 < 10 && isVertical)
+                            {
+                                if (board[y1, x1].Length > 1 && board[y1 + 1, x1] == board[y1, x1].Substring(0, 2))
+                                {
+                                    board[y1 + 1, x1] += "C";
+                                    isHorizontal = false;
+                                    bcount++;
+                                    continue;
+                                }
+                            }
+
+                            if (bcount > int.Parse(board[y, x].ToCharArray()[1].ToString()))
+                                throw new BrokenRules("корабль неправильно расположен");
+
+                            break;
+                        }
+
+
+                    }
+                    else if (!BotCheck && board[y,x].ToCharArray()[0].ToString() == "S")
                     {
                         int count = 1;
 
@@ -279,13 +337,14 @@ namespace NavalBattles
                         if (count > 2)
                             throw new BrokenRules("корабль неправильно расположен");
                     }
+                    
                 }
             }
 
-            if (Array.IndexOf(Size1Ship, null) != -1 || 
+            if (!BotCheck && (Array.IndexOf(Size1Ship, null) != -1 || 
                 Array.IndexOf(Size2Ship, null) != -1 || 
                 Array.IndexOf(Size3Ship, null) != -1 || 
-                Array.IndexOf(Size4Ship, null) != -1)
+                Array.IndexOf(Size4Ship, null) != -1))
                 throw new BrokenRules("неверное количество кораблей");
         }
 

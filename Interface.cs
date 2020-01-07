@@ -41,7 +41,7 @@ namespace NavalBattles
             //Console.Clear();
 
             UsrMesh.DrawGameBoard(UsrMesh.x, UsrMesh.y);
-            EnemyMesh.DrawGameBoard(EnemyMesh.x, EnemyMesh.y, true);
+            EnemyMesh.DrawGameBoard(EnemyMesh.x, EnemyMesh.y, true, false);
 
             Mesh.SetCursor(usrX + 2, usrY - 5, 1, ConsoleColor.Yellow);
             Console.Write(Convert.ToInt32(isSecond) + 1);

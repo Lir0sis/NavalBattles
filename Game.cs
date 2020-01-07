@@ -3,8 +3,11 @@ using System.Text;
 
 namespace NavalBattles
 {
+
     class Game
     {
+
+        static public int PercentHardness = 0;
         static void Main(string[] args)
         {
 
@@ -15,53 +18,186 @@ namespace NavalBattles
             Console.WindowLeft = 0;
             Console.WindowTop = 0;
 
+
             User player1 = new User();
             User player2 = new User(true);
+            Bot bot = null;
 
-            Interface.Pause(null, "   Морской Бой");
 
-            Interface.WriteAction("Игрок №1 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
-            Interface.UpdatePlayersStatus(player1, player2);
-            Setup(player1);
-
-            Interface.Pause(player2);
-
-            Interface.WriteAction("Игрок №2 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
-            Interface.UpdatePlayersStatus(player2, player1);
-            Setup(player2);
-
-            PrepareBoard(player2, player1);
-            PrepareBoard(player1, player2);
-
-            while(true)
+            string[] Options =
             {
-                Interface.Pause(player1);
+                "PlayerVsPlayer",
+                "PlayerVsBot",
+            };
 
-                DoTurn(player1, player2);
-                
-                if (isLooser(player2))
-                    break;
+            string[] BotOptions =
+            {
+                "Easy",
+                "Medium",
+                "Hard",
+                "God"
+            };
+
+
+            int option = PickOption(Options);
+
+            if (option == 1)
+            {
+                Interface.Pause(null, "   Морской Бой");
+
+                Interface.WriteAction("Игрок №1 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
+                Interface.UpdatePlayersStatus(player1, player2);
+                Setup(player1);
 
                 Interface.Pause(player2);
 
-                DoTurn(player2, player1);
-                if (isLooser(player1))
-                    break;
+                Interface.WriteAction("Игрок №2 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
+                Interface.UpdatePlayersStatus(player2, player1);
+                Setup(player2);
+
+                PrepareBoard(player2, player1);
+                PrepareBoard(player1, player2);
+
+
+                while (true)
+                {
+                    Interface.Pause(player1);
+
+                    DoTurn(player1, player2);
+
+                    if (isLooser(player2))
+                        break;
+
+                    Interface.Pause(player2);
+
+                    DoTurn(player2, player1);
+                    if (isLooser(player1))
+                        break;
+                }
             }
-            
+            else if (option == 2)
+            {
+
+                /*
+                weight = 40;
+                if(rand(0 100) > weight) shoottokill
+                else 
+                
+                */
+                option = PickOption(BotOptions);
+
+                Interface.Pause(null, "   Морской Бой");
+                bot = new Bot(player2, player1);
+
+                if (option == 1)
+                    bot.BotLevel = 0;
+
+                else if (option == 2)
+                    bot.BotLevel = 30;
+
+                else if (option == 3)
+                    bot.BotLevel = 65;
+
+                else if (option == 4)
+                    bot.BotLevel = 100;
+
+                Interface.WriteAction("Игрок №1 подготовиться! (Клавиши Е/Enter)", ConsoleColor.Yellow);
+                Interface.UpdatePlayersStatus(player1, player2);
+                Setup(player1);
+                
+                bot.PrepareBoard();
+                Interface.UpdatePlayersStatus(player2, player1);
+
+
+                PrepareBoard(player2, player1);
+                PrepareBoard(player1, player2);
+
+                
+
+                while (true)
+                {
+                    DoTurn(player1, player2);
+                    if (isLooser(player2))
+                        break;
+
+                    bot.DoTurn();
+                    if (isLooser(player1))
+                        break;
+                }
+
+            }
             if (isLooser(player1))
             {
-                player2.Interface.EnemyMesh.DrawLooseAnimation();
-                Interface.WriteAction("Игрок №1 - победил!", ConsoleColor.Green);
+                var color = ConsoleColor.Green;
+
+                if (bot == null)
+                    player2.Interface.EnemyMesh.DrawLooseAnimation();
+                else
+                {
+                    color = ConsoleColor.Yellow;
+                    player1.Interface.UsrMesh.DrawLooseAnimation();
+                }
+                Interface.WriteAction("Игрок №2 - победил!", ConsoleColor.Green);
             }
             else if (isLooser(player2))
             {
+                
                 player1.Interface.EnemyMesh.DrawLooseAnimation();
-                Interface.WriteAction("Игрок №2 - победил!", ConsoleColor.Green);
+
+                Interface.WriteAction("Игрок №1 - победил!", ConsoleColor.Green);
             }
 
             Mesh.SetCursor();
         }
+
+        static int PickOption(string[] Options)
+        {
+            Console.Clear();
+            Interface.DrawWindowBase(18, 10 - Options.Length / 2, 42, 14 + Options.Length / 2 - 1);
+
+            int count = 0;
+            while (count < Options.Length)
+            {
+                Mesh.SetCursor(21, 11 - (Options.Length / 2) + 1 + count);
+                Console.Write(Options[count]);
+                count++;
+            }
+
+            int option = 1;
+            int preOption = 0;
+            int x1 = 21, y1 = 11 - Options.Length / 2 + 1;
+            while (true) 
+            {
+
+                Mesh.SetCursor(x1, y1 + option - 1, 1, ConsoleColor.Black, ConsoleColor.White);
+                Console.Write(Options[option - 1]);
+
+                var Key = Console.ReadKey().Key;
+                if (Key == ConsoleKey.DownArrow || Key == ConsoleKey.S)
+                {
+                    preOption = option;
+                    option = option + 1 > Options.Length ? option + 1 - Options.Length : option + 1;
+                }
+                else if (Key == ConsoleKey.UpArrow || Key == ConsoleKey.W)
+                {
+                    preOption = option;
+                    option = option - 1 <= 0 ? option - 1 + Options.Length : option - 1;
+                }
+                else if (Key == ConsoleKey.Enter)
+                    break;
+                else
+                    continue;
+
+                Mesh.SetCursor(x1, y1 + preOption - 1, 1, ConsoleColor.White, ConsoleColor.Black);
+                Console.Write(Options[preOption - 1] + " ");
+
+            }
+
+            Mesh.SetCursor(0,0);
+
+            return option;
+        }
+
 
         public static bool isLooser(User playerToCheck)
         {
@@ -90,9 +226,10 @@ namespace NavalBattles
             Interface.UpdatePlayersStatus(player, enemy);
             player.Interface.CurrentPlayer(player);
             bool hit = true;
+            bool @bool;
             while (hit)
             {
-                player.CheckForDestroyedShips(enemy);
+                player.CheckForDestroyedShips(enemy, out @bool);
                 player.SurroundDestrShips();
                 if (isLooser(enemy))
                     break;
@@ -101,7 +238,7 @@ namespace NavalBattles
                 hit = Shoot(player, enemy);
                 UpdateBoard(enemy, player);
             }
-            player.CheckForDestroyedShips(enemy);
+            player.CheckForDestroyedShips(enemy, out @bool);
 
         }
         public static void PrepareBoard(User player1, User player2)
